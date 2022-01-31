@@ -3,17 +3,26 @@
 # Description:
 #   Init script to build and run the app in a docker container in your local environment
 # Usage: 
-#   ./init.sh
+#   ./init.sh ${APPNAME} ${CONTEXT}
 #
 ######
-CONTEXT='/home/ec2-user/environment/ben-tech-challenge/app'
-DOCKERFILE='../app/Dockerfile'
 APPNAME='ben-tech-challenge'
+CONTEXT='/home/ec2-user/environment/ben-tech-challenge/app' # Must be full path (no aliases) to app directory
+DOCKERFILE='../app/Dockerfile'
 VERSION=$(git describe)
 SHA=$(git rev-parse --short HEAD)
 VERSION_TAG="$VERSION.$SHA"
 IMAGE="$APPNAME-$VERSION_TAG"
 PORT=80
+
+# Check for input parameters
+if [ -z "${1-}" ] || [ -z "${2-}" ]
+then
+  echo "APPNAME and CONTEXT not set on command line; Using default values ${APPNAME} ${CONTEXT}"
+else
+  APPNAME=$1
+  CONTEXT=$2
+fi
 
 # Clean up container if it is already running
 docker stop $APPNAME 2>/dev/null 
