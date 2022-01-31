@@ -27,7 +27,7 @@ To get started clone the repo, navigate to the scripts folder, In init.sh set th
 git clone https://github.com/nichichi/ben-tech-challenge.git  
 cd ben-tech-challenge/scripts/
 
-# Before you run, remember to set CONTEXT (line 9) to the full app path e.g. CONTEXT='/home/ec2-user/environment/ben-tech-challenge/app'
+# Before you run, remember to set CONTEXT (line 9) to the full app path (no aliases) e.g. CONTEXT='/home/ec2-user/environment/ben-tech-challenge/app'
 ./init.sh
 
 # To test the app is running
