@@ -36,6 +36,9 @@ The application is Dockerised and deployed to AWS. The Terraform Templates deplo
    ```
 
 ### Deploy to Local Environment  
+   
+*The instructions below assume you already have Docker installed on your local system. If you need to install Docker please follow the instructions on their site: https://docs.docker.com/engine/install/*  
+  
 There is a script to build and run the application inside Docker in your local environment. This is for building and testing the **nodejs application only**. It does not push the image to Docker Hub or deploy the AWS resources.  
   
 The script accepts two arguments APPNAME and CONTEXT where CONTEXT is the full path to the app folder, this arg does not accept aliases like ~  
