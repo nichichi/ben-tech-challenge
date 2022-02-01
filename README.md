@@ -159,6 +159,67 @@ Also in the extras folder is a Cloudformation Template **cloudformation/prerequi
 make destroy
 ```
   
+## Private Subnets and NAT Gateway
+I originally created private subnets for the ECS Service and a NAT gateway for the container to talk out to the internet. This is a more secure design, but I decided I didn't want to pay for the NAT gateway and commented out the resources.  
+To deploy the solution with the NAT gateway make the following changes, before following the **Deploy with CI/CD Pipeline** steps above:  
+```
+# in terraform/local.tfvars make sure the private cidrs don't clash with any of the subnets in your account (line 6-7)
+private1Cidr = "10.0.0.0/26"
+private2Cidr = "10.0.0.64/26"
+
+# in terraform/local.tfvars set publicIp to false (line 17)
+publicIp = false
+
+# in terraform/main.tf
+# # Uncomment lines 54-94 to build private subnets and nat gateway
+# resource "aws_subnet" "private1" {
+#   vpc_id = aws_vpc.network.id
+#   cidr_block = var.private1Cidr
+#   availability_zone = var.availabilityZoneA
+# }
+
+# resource "aws_subnet" "private2" {
+#   vpc_id = aws_vpc.network.id
+#   cidr_block = var.private2Cidr
+#   availability_zone = var.availabilityZoneB
+# }
+#
+# resource "aws_nat_gateway" "natgw" {
+#   allocation_id = aws_eip.natgw.id
+#   subnet_id     = aws_subnet.public1.id
+#   depends_on = [aws_internet_gateway.network]
+# }
+
+# resource "aws_eip" "natgw" {
+#   vpc = true
+# }
+
+# resource "aws_route_table" "private" {
+#   vpc_id = aws_vpc.network.id
+# }
+
+# resource "aws_route" "private" {
+#   route_table_id = aws_route_table.private.id
+#   destination_cidr_block = "0.0.0.0/0"
+#   nat_gateway_id = aws_nat_gateway.natgw.id
+# }
+
+# resource "aws_route_table_association" "private1" {
+#   subnet_id = aws_subnet.private1.id
+#   route_table_id = aws_route_table.private.id
+# }
+
+# resource "aws_route_table_association" "private2" {
+#   subnet_id = aws_subnet.private2.id
+#   route_table_id = aws_route_table.private.id
+# }
+
+
+# in terraform/main.tf (line 202) edit the ECS service to use private subnets
+subnets = [aws_subnet.private1.id,aws_subnet.private2.id]
+```
+
+  
 ## Improvements
 This is by no means a production ready design; I would recommend that the following improvements be made to make it a more complete solution  
 - Logging and Metrics Configuration
@@ -167,7 +228,6 @@ This is by no means a production ready design; I would recommend that the follow
 - TLS on the ALB and Container
 - API Auth
 - API Error Handling
-- Deploy The Container Service on a Private Subnet with a Nat Gateway for Outbound Internet Access
 - Add unit testing of the application to the CI/CD Pipeline
 - Add Linting of the Terraform templates to the CI/CD Pipeline
 - For team environments; Set up a branching strategy including peer review/approval required for merges to main

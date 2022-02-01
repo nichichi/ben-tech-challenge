@@ -16,18 +16,6 @@ resource "aws_internet_gateway" "network" {
   vpc_id = aws_vpc.network.id
 }
 
-# resource "aws_subnet" "private1" {
-#   vpc_id = aws_vpc.network.id
-#   cidr_block = var.private1Cidr
-#   availability_zone = var.availabilityZoneA
-# }
-
-# resource "aws_subnet" "private2" {
-#   vpc_id = aws_vpc.network.id
-#   cidr_block = var.private2Cidr
-#   availability_zone = var.availabilityZoneB
-# }
-
 resource "aws_subnet" "public1" {
   vpc_id = aws_vpc.network.id
   cidr_block = var.public1Cidr
@@ -62,7 +50,19 @@ resource "aws_route_table_association" "public2" {
   route_table_id = aws_route_table.public.id
 }
 
-# # Actually not certain that my container needs to access the internet so the nat gateway may be unnecessary
+# # Uncomment lines 54-94 to build private subnets and nat gateway
+# resource "aws_subnet" "private1" {
+#   vpc_id = aws_vpc.network.id
+#   cidr_block = var.private1Cidr
+#   availability_zone = var.availabilityZoneA
+# }
+
+# resource "aws_subnet" "private2" {
+#   vpc_id = aws_vpc.network.id
+#   cidr_block = var.private2Cidr
+#   availability_zone = var.availabilityZoneB
+# }
+#
 # resource "aws_nat_gateway" "natgw" {
 #   allocation_id = aws_eip.natgw.id
 #   subnet_id     = aws_subnet.public1.id
@@ -199,7 +199,7 @@ resource "aws_ecs_service" "ecs"{
   
   network_configuration {
     security_groups  = [aws_security_group.ecs.id]
-    subnets          = [aws_subnet.public1.id,aws_subnet.public2.id]
+    subnets = [aws_subnet.public1.id,aws_subnet.public2.id] #For private subnets use [aws_subnet.private1.id,aws_subnet.private2.id]
     assign_public_ip = var.publicIp
   }
   

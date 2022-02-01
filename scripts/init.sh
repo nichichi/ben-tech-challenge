@@ -11,9 +11,9 @@ CONTEXT='/home/ec2-user/environment/ben-tech-challenge/app' # Must be full path 
 DOCKERFILE='../app/Dockerfile'
 VERSION=$(git describe)
 SHA=$(git rev-parse --short HEAD)
+PORT=80
 VERSION_TAG="$VERSION.$SHA"
 IMAGE="$APPNAME-$VERSION_TAG"
-PORT=80
 
 # Check for input parameters
 if [ -z "${1-}" ] || [ -z "${2-}" ]
