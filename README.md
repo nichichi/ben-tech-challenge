@@ -1,4 +1,4 @@
-# ben-tech-challenge - DRAFT
+# ben-tech-challenge
 ## Overview
 This repository contains the code and templates to build and deploy a simple REST API With NodeJS and Express.  
   
@@ -17,19 +17,40 @@ The application is Dockerised and deployed to AWS. The Terraform Templates deplo
 | Security Groups and Rules |                                    | |
   
 ## Usage
-### Deploy to Local Environment  
-There is a script to build and run the application inside Docker in your local environment. To get started clone the repo, navigate to the scripts folder, In init.sh set the correct CONTEXT (line 9) and run ./init.sh e.g.
-```
-git clone https://github.com/nichichi/ben-tech-challenge.git  
-cd ben-tech-challenge/scripts/
+### Fork the Repo
+1. Fork the GitHub Repo  
+   ```
+   # Follow The Instructions at this link to Fork the ben-tech-challenge-repo to your GitHub User Account
+   https://docs.github.com/en/get-started/quickstart/fork-a-repo
+   
+   # Clone the forked repo
+   git clone https://github.com/${your username}/${your forked repo}.git  
+   ```
+2. Verify the remote settings so that any changes you commit will be pushed to your forked repo and not the parent  
+   ```
+   git remote -v
+   
+   # Should return values as below
+   # origin  https://github.com/${your username}/${your forked repo}.git  (fetch)
+   # origin  https://github.com/${your username}/${your forked repo}.git  (push)
+   ```
 
-# Before you run, remember to set CONTEXT (line 9) to the full app path e.g. CONTEXT='/home/ec2-user/environment/ben-tech-challenge/app'
-./init.sh
+### Deploy to Local Environment  
+There is a script to build and run the application inside Docker in your local environment. This is for building and testing the **nodejs application only**. It does not push the image to Docker Hub or deploy the AWS resources.  
+  
+The script accepts two arguments APPNAME and CONTEXT where CONTEXT is the full path to the app folder, this arg does not accept aliases like ~  
+  
+To get started navigate to the scripts folder and run ./init.sh APPNAME CONTEXT e.g.
+```
+cd ${your forked repo}/scripts/
+
+# Usage: ./init.sh ${APPNAME} ${CONTEXT}
+./init.sh ben-tech-challenge /home/ec2-user/environment/ben-tech-challenge/app
 
 # To test the app is running
 curl http://localhost/health # Should return something like {"githash":"d1f31a6","appname":"ben-tech-challenge","version":"v1.1-45-gd1f31a6"}
 
-# Clean up - container name defined in init.sh line 11
+# Clean up - container name = ${APPNAME}
 docker stop ben-tech-challenge
 docker rm ben-tech-challenge
 ```  
@@ -50,13 +71,8 @@ This policy contains the minimum permissions required to create and delete the T
   
 Also in the extras folder is a Cloudformation Template **cloudformation/prerequisites.yaml** to deploy the S3 Bucket for the Terraform backend. You can use this if you want but you will need to ensure that your user has permissions to deploy cloudformation stacks and the s3 resources it deploys.  
   
-**Instructions**
-1. Fork the GitHub Repo  
-   ```
-   # Follow The Instructions at this link to Fork and Clone the ben-tech-challenge-repo to your GitHub User Account
-   https://docs.github.com/en/get-started/quickstart/fork-a-repo
-   ```
-2. Create GitHub Repo Secrets  
+**Instructions**  
+1. Create GitHub Repo Secrets  
    ```
    # Follow the Instructions at this link to create the below secrets: https://docs.github.com/en/actions/security-guides/encrypted-secrets#creating-encrypted-secrets-for-a-repository
    # NOTE: GitHub Secrets CANNOT be retrieved in the GitHub Console, and CANNOT be output in plaintext in your workflow. Ensure you have a backup of your secrets.  
@@ -66,7 +82,7 @@ Also in the extras folder is a Cloudformation Template **cloudformation/prerequi
    DOCKER_PASSWORD=${your docker hub password}
    DOCKER_USER=${your docker hub username}
    ```
-3. Set Variables in Files  
+2. Set Variables in Files  
    You can use the default values (as long as the network cidr ranges don't clash with your current environment) just make sure to update the **docker repo** and **s3 backend**, and check the AWS region and availability zones
    ```
    # in .github/workflows/deploy.yaml lines 12-14
@@ -98,7 +114,7 @@ Also in the extras folder is a Cloudformation Template **cloudformation/prerequi
    key = "ben-tech-challenge/tfstatefiles"
    region = "ap-southeast-2"
    ```
-4. Trigger Deploy  
+3. Trigger Deploy  
    The deploy workflow will be triggered when commits are pushed to the main branch. To add additional branches edit the branches list on line 3 of .github/workflows/deploy.yaml
    ```
    # Example git commands to trigger a deployment
@@ -118,6 +134,12 @@ Also in the extras folder is a Cloudformation Template **cloudformation/prerequi
 2. Retrieve the DNS Name of your Application Load Balancer  
    In the AWS Console EC2 -> Load Balancers -> Select the load balancer and copy the DNS name e.g.
    ![image](https://user-images.githubusercontent.com/7879884/151684310-2261c688-5587-4152-8b82-0e52e07a90c6.png)
+     
+   Or   
+     
+   in the Deploy Terraform stage of the deploy workflow output (scroll to bottom)
+   ![image](https://user-images.githubusercontent.com/7879884/151894557-7e46e9c0-f052-417a-bfbe-36e3ea6cebae.png)
+
 
 3. Call the Application  
    The easiest way to test is by using the curl command or you can use your favourite rest client.  
